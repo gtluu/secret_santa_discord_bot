@@ -1,50 +1,75 @@
-import discord
 from secret_santa_bot import *
 
 
-if __name__ == "__main__":
-
+def main():
     client = discord.Client()
-
-    santa_message = ""
 
     @client.event
     async def on_message(message):
-        guild = client.get_guild(id="")
-        if message.author != client.user:
-            if message.content == ".santas":
-                for member in guild.members:
-                    for role in member.roles:
-                        if role.name == "Santa":
-                            print(member)
-                            await message.channel.send(member)
-            if message.content == ".santa bot activate":
-                people = []
-                for member in guild.members:
-                    for role in member.roles:
-                        if role.name == "Santa":
-                            people.append(member)
-                santas = pairup(people)
-                for pair in santas:
-                    print("Santa: " + pair[0].name)
-                    print("Receiver: " + pair[1].name)
-                    print('\n')
-                    await pair[0].send(santa_message)
-                    await pair[0].send("You are " + str(pair[1]) + "'s santa.")
-            if message.content == ".gifted":
-                retired_santas_txt = os.path.dirname(os.path.abspath(__file__)) + "\giftedbois.txt"
-                with open(retired_santas_txt, 'r+') as file_obj:
-                    if str(message.author).strip() in file_obj.read().strip():
-                        await message.channel.send("You've already been added to the list, bucko.")
-                        
-                    elif str(message.author) not in file_obj.read().strip():
-                        await message.channel.send("You are hereby retired from your role as Santa, %s" % str(message.author)[:-5])
-                        file_obj.write("\n" + str(message.author))
-                await message.channel.send("Now, The following Santas have finished their job:\n")
-                with open(retired_santas_txt, 'r') as file_obj:
-                    for line in file_obj:
-                        await message.channel.send(line + "\n")
-            if message.content == ".test":
-                print("Hello Pepe!")
+        guild = client.get_guild(id=354147940366942219)
+        # Remove whitespace from the message.
+        command = message.content.strip()
 
-    client.run("")
+        # If the message author isn't the bot.
+        if message.author != client.user:
+            # Add the 'Santa' role to the server if it has not already been done using default parameters/permissions.
+            # Give the 'Santa' role to the user that used the '.add santa' command.
+            if command == '.add santa':
+                role_names = [role.name for role in guild.roles]
+                if 'Santa' not in role_names:
+                    await guild.create_role(name='Santa')
+
+                def get_role(roles, wanted_role):
+                    for role in roles:
+                        if role.name == wanted_role:
+                            return role
+
+                await message.author.add_roles(get_role(guild.roles, 'Santa'))
+                await message.channel.send('Added ' + str(message.author) + ' to the Santa List.')
+
+            # Bot messages the list of members with the 'Santa' role.
+            if command == '.santa list':
+                await message.channel.send('\n'.join([member.name for member in guild.members for role in member.roles
+                                                      if role.name == 'Santa']))
+
+            # Begin secret Santa.
+            # Every participant receives the welcome message for the start of the event and the name of their giftee.
+            if command == '.santa bot activate':
+                santas = [member for member in guild.members for role in member.roles if role.name == 'Santa']
+                # Randomize and pair up participants.
+                santas = pairup(santas)
+                for pair in santas:
+                    await pair['giftee'].send(santa_message)
+                    time.sleep(10)
+                    # Cover giftee's name with spoiler tags.
+                    await pair['gifter'].send('You are ||' + pair['giftee'].name + "'s|| Santa.")
+
+            # Users tell the bot they have sent their gift.
+            # A plaintext file is kept with the names of the users who have gifted their giftee.
+            # Santa Bot also messages the list of Santas that have completed their job each time '.gifted' is called.
+            if command == '.gifted':
+                retired_santas = os.path.join(os.path.dirname(__file__), 'retired_santas.txt')
+                with open(retired_santas, 'r+') as retiree_file:
+                    if str(message.author).strip() in retiree_file.read().strip():
+                        await message.channel.send('You have already been retired.')
+                    else:
+                        retiree_file.write('\n' + str(message.author))
+                        await message.channel.send('You are hereby retired from your role as santa, %s' %
+                                                   str(message.author)[:-5])
+                    await message.channel.send('Now, the following Santas have finished their job:\n' +
+                                               retiree_file.read())
+
+            # Test command to make sure Santa Bot is hooked up correctly.
+            if command == '.test':
+                await message.channel.send("Hello Pepe!")
+
+            # Help command to explain all available commands.
+            if command == '.help':
+                pass
+
+    client.run("NTI0MzA4NjIxNzY1Mzc4MDQ4.Xl3b0g.5-1EVyAhyLLmCmgbcOHqQGd5-v4")
+
+
+if __name__ == "__main__":
+    main()
+
