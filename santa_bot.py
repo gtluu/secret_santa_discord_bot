@@ -6,7 +6,7 @@ def main():
 
     @client.event
     async def on_message(message):
-        guild = client.get_guild(id=354147940366942219)
+        guild = client.get_guild(id=)
         # Remove whitespace from the message.
         command = message.content.strip()
 
@@ -67,7 +67,7 @@ def main():
             if command == '.help':
                 pass
 
-    client.run("NTI0MzA4NjIxNzY1Mzc4MDQ4.Xl3b0g.5-1EVyAhyLLmCmgbcOHqQGd5-v4")
+    client.run("")
 
 
 if __name__ == "__main__":
