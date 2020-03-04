@@ -5,7 +5,7 @@ In preparation for the holiday season of the new decade, Santa Pepe's older brot
 ## How to Use
 Place santa_pepe.py in the desired directory. Edit the script to add your server's guild ID and token and to edit any bot messages. Santas should be given the "Santa" role by admins or mods on the server. Run the script on the terminal of your choice.
 
-## Commands
+## Commands (Santa Pepe)
 .santa bot activate - begin the holiday festivities\
 .santas - display all the Santas signed up\
 .gifted - tell Santa Pepe the deed is done\
