@@ -7,7 +7,6 @@ def main():
 
     @client.event
     async def on_message(message):
-<<<<<<< HEAD
         config = parse_config_file()
 
         def get_role(roles, wanted_role):
@@ -17,9 +16,7 @@ def main():
 
         # Channel ID
         guild = client.get_guild(id=int(config['id']))
-=======
         guild = client.get_guild(id=)
->>>>>>> 22bc4e1c8b366a9241917909310beb5da3a2b923
         # Remove whitespace from the message.
         command = message.content.strip()
 
@@ -79,12 +76,9 @@ def main():
             if command == '.help.ini':
                 pass
 
-<<<<<<< HEAD
     # Bot Token from Developer Page
     client.run(str(config['token']))
-=======
     client.run("")
->>>>>>> 22bc4e1c8b366a9241917909310beb5da3a2b923
 
 
 if __name__ == "__main__":
