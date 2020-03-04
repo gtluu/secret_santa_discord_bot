@@ -7,4 +7,4 @@ def pairup(people):
     partners = deque(people)
     partners.rotate(n=random.randint(1, len(people)))
     pairs = zip(people, partners)
-    return [{'gifter': thing1, 'giftee': thing2} for thing1, thing2 in pairs]
+    return [{'gifter': thing1, 'giftee': thing2, 'retired': False} for thing1, thing2 in pairs]

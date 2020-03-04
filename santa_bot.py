@@ -3,10 +3,19 @@ from secret_santa_bot import *
 
 def main():
     client = discord.Client()
+    config = parse_config_file()
 
     @client.event
     async def on_message(message):
-        guild = client.get_guild(id=354147940366942219)
+        config = parse_config_file()
+
+        def get_role(roles, wanted_role):
+            for role in roles:
+                if role.name == wanted_role:
+                    return role
+
+        # Channel ID
+        guild = client.get_guild(id=int(config['id']))
         # Remove whitespace from the message.
         command = message.content.strip()
 
@@ -16,40 +25,39 @@ def main():
             # Give the 'Santa' role to the user that used the '.add santa' command.
             if command == '.add santa':
                 role_names = [role.name for role in guild.roles]
-                if 'Santa' not in role_names:
-                    await guild.create_role(name='Santa')
+                if str(config['role']) not in role_names:
+                    await guild.create_role(name=str(config['role']))
 
-                def get_role(roles, wanted_role):
-                    for role in roles:
-                        if role.name == wanted_role:
-                            return role
-
-                await message.author.add_roles(get_role(guild.roles, 'Santa'))
-                await message.channel.send('Added ' + str(message.author) + ' to the Santa List.')
+                await message.author.add_roles(get_role(guild.roles, str(config['role'])))
+                await message.channel.send(config['add_santa'].replace('(user)', message.author))
 
             # Bot messages the list of members with the 'Santa' role.
             if command == '.santa list':
                 await message.channel.send('\n'.join([member.name for member in guild.members for role in member.roles
-                                                      if role.name == 'Santa']))
+                                                      if role.name == str(config['role'])]))
 
             # Begin secret Santa.
             # Every participant receives the welcome message for the start of the event and the name of their giftee.
             if command == '.santa bot activate':
-                santas = [member for member in guild.members for role in member.roles if role.name == 'Santa']
+                santas = [member for member in guild.members for role in member.roles
+                          if role.name == str(config['role'])]
                 # Randomize and pair up participants.
                 santas = pairup(santas)
                 for pair in santas:
-                    await pair['giftee'].send(santa_message)
+                    await pair['giftee'].send(config['santa_message'])
                     time.sleep(10)
                     # Cover giftee's name with spoiler tags.
                     await pair['gifter'].send('You are ||' + pair['giftee'].name + "'s|| Santa.")
+                # TO DO: write out pairs and number of participants to files or pickle santas object.
 
             # Users tell the bot they have sent their gift.
-            # A plaintext file is kept with the names of the users who have gifted their giftee.
+            # Users are given the 'Retired Santa' role and lose the 'Santa' role.
             # Santa Bot also messages the list of Santas that have completed their job each time '.gifted' is called.
             if command == '.gifted':
-                retired_santas = os.path.join(os.path.dirname(__file__), 'retired_santas.txt')
-                with open(retired_santas, 'r+') as retiree_file:
+                #retired_santas = os.path.join(os.path.dirname(__file__), 'retired_santas.txt')
+                await message.author.remove_roles(get_role(guild.roles, str(config['role'])))
+                await message.author.add_roles(get_role(guild.roles, str(config['retired_role'])))
+                '''with open(retired_santas, 'r+') as retiree_file:
                     if str(message.author).strip() in retiree_file.read().strip():
                         await message.channel.send('You have already been retired.')
                     else:
@@ -57,17 +65,18 @@ def main():
                         await message.channel.send('You are hereby retired from your role as santa, %s' %
                                                    str(message.author)[:-5])
                     await message.channel.send('Now, the following Santas have finished their job:\n' +
-                                               retiree_file.read())
+                                               retiree_file.read())'''
 
             # Test command to make sure Santa Bot is hooked up correctly.
             if command == '.test':
                 await message.channel.send("Hello Pepe!")
 
             # Help command to explain all available commands.
-            if command == '.help':
+            if command == '.help.ini':
                 pass
 
-    client.run("NTI0MzA4NjIxNzY1Mzc4MDQ4.Xl3b0g.5-1EVyAhyLLmCmgbcOHqQGd5-v4")
+    # Bot Token from Developer Page
+    client.run(str(config['token']))
 
 
 if __name__ == "__main__":
