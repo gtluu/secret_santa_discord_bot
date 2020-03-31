@@ -1,4 +1,7 @@
 - help command
 - custom messages
-- config file parser for messages and server info
 - more robust role creation for permissions, etc.
+- pickle each santa's info via a dict
+- add command for associating steam usernames
+- add command for steam wishlist
+- add command for wishlist/likes/dislikes
