@@ -6,3 +6,5 @@
 - add command for scraping steam wishlist
 - add command for wishlist/likes/dislikes
 - add command for updating wishlist
+- add commands for editing config
+- create flask webapp for: editing config, accessing others' wishlists, editing your own wishlist; sql backend and/or plain text saved data
